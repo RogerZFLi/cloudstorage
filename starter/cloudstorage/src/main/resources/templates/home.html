@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
+        <meta name="loading-marker" id="page-loading-marker">
         <link rel="stylesheet" type="text/css" media="all" th:href="@{/css/bootstrap.min.css}">
 
         <title>Home</title>
@@ -11,31 +11,32 @@
     <body class="p-3 mb-2 bg-light text-black">
         <div class="container">
             <div id="logoutDiv">
-                <form action="#" method="POST">
-                    <button type="submit" class="btn btn-secondary float-right">Logout</button>
+                <form action="#" method="POST" th:action="@{/logout}">
+                    <button type="submit" class="btn btn-secondary float-right" id="home-logout-button">Logout</button>
                 </form>
             </div>
             <div id="contentDiv" style="clear: right;">
                 <nav style="clear: right;">
                     <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                        <a class="nav-item nav-link active" id="nav-files-tab" data-toggle="tab" href="#nav-files" role="tab" aria-controls="nav-files" aria-selected="true">Files</a>
-                        <a class="nav-item nav-link" id="nav-notes-tab" data-toggle="tab" href="#nav-notes" role="tab" aria-controls="nav-notes" aria-selected="false">Notes</a>
-                        <a class="nav-item nav-link" id="nav-credentials-tab" data-toggle="tab" href="#nav-credentials" role="tab" aria-controls="nav-credentials" aria-selected="false">Credentials</a>
+                        <a class="nav-item nav-link" th:classappend="|${(not noteActive and not credentialActive) ? 'active' : ''}|" id="nav-files-tab" data-toggle="tab" href="#nav-files" role="tab" aria-controls="nav-files" aria-selected="true">Files</a>
+                        <a class="nav-item nav-link" th:classappend="|${noteActive ? 'show' : ''} ${noteActive ? 'active' : ''}|" id="nav-notes-tab" data-toggle="tab" href="#nav-notes" role="tab" aria-controls="nav-notes" aria-selected="false">Notes</a>
+                        <a class="nav-item nav-link" th:classappend="|${credentialActive ? 'show' : ''} ${credentialActive ? 'active' : ''}|" id="nav-credentials-tab" data-toggle="tab" href="#nav-credentials" role="tab" aria-controls="nav-credentials" aria-selected="false">Credentials</a>
                     </div>
                 </nav>
                 <div class="tab-content" id="nav-tabContent">
-                    <div class="tab-pane fade show active" id="nav-files" role="tabpanel" aria-labelledby="nav-files-tab">
-                        <form action="#" enctype="multipart/form-data" method="POST">
+                    <div class="tab-pane fade" th:classappend="|${(not noteActive and not credentialActive) ? 'show' : ''} ${(not noteActive and not credentialActive) ? 'active' : ''}|" id="nav-files" role="tabpanel" aria-labelledby="nav-files-tab">
+                        <form action="#"  th:action="@{/files}" th:object="${fileForm}" enctype="multipart/form-data" method="POST">
                             <div class="container">
                                 <div class="row" style="margin: 1em;">
                                     <div class="col-sm-2">
                                         <label for="fileUpload">Upload a New File:</label>
                                     </div>
                                     <div class="col-sm-6">
-                                        <input type="file" class="form-control-file" id="fileUpload" name="fileUpload">
+                                        <input th:field="*{file}" type="file" class="form-control-file" id="fileUpload" name="fileUpload">
                                     </div>
                                     <div class="col-sm-4">
-                                        <button type="submit" class="btn btn-dark">Upload</button>
+                                        <button type="submit" class="btn btn-info float-right" name="uploadButton" id="upload-file-button"> + Upload</button>
+
                                     </div>
                                 </div>
                             </div>
@@ -49,19 +50,19 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                <tr>
+                                <tr id="file-table-content" th:each="file:${files}">
                                     <td>
-                                        <a target="_blank" class="btn btn-success">View</a>
-                                        <a  class="btn btn-danger">Delete</a>
+                                        <a target="{file.fileName}" class="btn btn-success" th:id="${'home-file-view-link' + file.fileId}" name="home-file-view-link" th:href="@{/files/view/{fileId}(fileId=${file.fileId})}">View</a>
+                                        <a  class="btn btn-danger" th:id="${'home-file-delete-link' + file.fileId}" name="home-file-delete-link" target="{file.fileName}" th:href="@{/files/{fileId}(fileId=${file.fileId})}">Delete</a>
                                     </td>
-                                    <th scope="row">ExampleFile.txt</th>
+                                    <th scope="row" th:id="${'home-file-name' + file.fileId}" name="home-file-name" th:text="${file.fileName}">ExampleFile.txt</th>
                                 </tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                    <div class="tab-pane fade" id="nav-notes" role="tabpanel" aria-labelledby="nav-notes-tab">
-                        <button style="margin: 0.25em;" type="button" class="btn btn-info float-right" onclick="showNoteModal()">
+                    <div class="tab-pane fade" th:classappend="|${noteActive ? 'show' : ''} ${noteActive ? 'active' : ''}|" id="nav-notes" role="tabpanel" aria-labelledby="nav-notes-tab">
+                        <button style="margin: 0.25em;" type="button" class="btn btn-info float-right" id="add-note-button" th:attr='onclick=|showNoteModal()|'>
                             + Add a New Note
                         </button>
 
@@ -75,13 +76,13 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
+                                    <tr th:each="note:${notes}">
                                         <td>
-                                            <button type="button" class="btn btn-success">Edit</button>
-                                            <a class="btn btn-danger">Delete</a>
+                                            <button type="button" class="btn btn-success" th:id="${'edit-note-button' + note.noteId}" name="edit-note-button" th:attr='onclick=|showNoteModal("${note.noteId}", "${note.noteTitle}", "${note.noteDescription}")|'>Edit</button>
+                                            <a class="btn btn-danger" th:id="${'delete-note-link' + note.noteId}" name="delete-note-link" th:href="@{/notes/{noteId}(noteId=${note.noteId})}">Delete</a>
                                         </td>
-                                        <th scope="row">Example Note Title</th>
-                                        <td>Example Note Description </td>
+                                        <th scope="row" th:id="${'note-title' + note.noteId}" name="note-title" th:text="${note.noteTitle}">Example Note Title</th>
+                                        <td th:id="${'note-description' + note.noteId}" name="note-description" th:text="${note.noteDescription}">Example Note Description </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -92,39 +93,62 @@
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="noteModalLabel">Note</h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <button type="button" class="close" id="note-modal-close-button" data-dismiss="modal" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
                                         </button>
                                     </div>
                                     <div class="modal-body">
-                                        <form action="#" method="POST">
-                                            <input type="hidden" name="noteId" id="note-id">
+                                        <form action="#" method="POST" th:action="@{/notes}" th:object="${note}">
+                                            <input type="hidden" name="noteId" id="note-id" th:field="*{noteId}">
                                             <div class="form-group">
                                                 <label for="note-title" class="col-form-label">Title</label>
-                                                <input type="text" name= "noteTitle" class="form-control" id="note-title" maxlength="20" required>
+                                                <input type="text" name= "noteTitle" class="form-control" id="note-title" th:field="*{noteTitle}" maxlength="20" required>
                                             </div>
                                             <div class="form-group">
                                                 <label for="note-description" class="col-form-label">Description</label>
-                                                <textarea class="form-control" name="noteDescription" id="note-description" rows="5" maxlength="1000" required></textarea>
+                                                <textarea class="form-control" name="noteDescription" id="note-description" rows="5" th:field="*{noteDescription}" maxlength="1000" required></textarea>
                                             </div>
-                                            <button id="noteSubmit" type="submit" class="d-none"></button>
+                                            <button id="note-submit-button" type="submit" class="d-none"></button>
                                         </form>
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                        <button type="button" class="btn btn-primary" onclick="$('#noteSubmit').click();">Save changes</button>
+                                        <button type="button" class="btn btn-secondary" id="note-modal-cancel-button" data-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-primary" id="note-modal-confirm-button" onclick="$('#note-submit-button').click();">Save changes</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
+<!--                        <div class="modal fade" id="deleteNoteModal" tabindex="-1" role="dialog" aria-labelledby="deleteNoteModalLabel" aria-hidden="true">-->
+<!--                            <div class="modal-dialog" role="document">-->
+<!--                                <div class="modal-content">-->
+<!--                                    <div class="modal-header">-->
+<!--                                        <h5 class="modal-title" id="deleteNoteModalLabel">Note</h5>-->
+<!--                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">-->
+<!--                                            <span aria-hidden="true">&times;</span>-->
+<!--                                        </button>-->
+<!--                                    </div>-->
+<!--                                    <div class="modal-body">-->
+<!--                                        <form action="#" method="POST" th:action="@{/note/delete}" th:object="${note}">-->
+<!--                                            <input type="hidden" name="deleteNoteId" id="delete-note-id" th:field="*{noteId}">-->
+<!--                                            <h4 id="delete-note-title" name="deleteNoteTitle"></h4>-->
+<!--                                            <button id="deleteNoteSubmit" type="submit" class="d-none"></button>-->
+<!--                                        </form>-->
+<!--                                    </div>-->
+<!--                                    <div class="modal-footer">-->
+<!--                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>-->
+<!--                                        <button type="button" class="btn btn-primary" onclick="$('#deleteNoteSubmit').click();">Delete</button>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
                     </div>
-                    <div class="tab-pane fade" id="nav-credentials" role="tabpanel" aria-labelledby="nav-credentials-tab">
-                        <button style="margin: 0.25em;" type="button" class="btn btn-info float-right" onclick="showCredentialModal()">
+                    <div class="tab-pane fade" th:classappend="|${credentialActive ? 'show' : ''} ${credentialActive ? 'active' : ''}|" id="nav-credentials" role="tabpanel" aria-labelledby="nav-credentials-tab">
+                        <button style="margin: 0.25em;" type="button" class="btn btn-info float-right" id="add-credential-button" onclick="showCredentialModal()">
                             + Add a New Credential
                         </button>
 
                         <div class="table-responsive">
-                            <table class="table table-striped" th:object="${credentials}" id="credentialTable">
+                            <table class="table table-striped" id="credentialTable">
                                 <thead>
                                     <tr>
                                         <th style="width: 20%" scope="col"></th>
@@ -134,14 +158,17 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                <tr>
+                                <tr th:each="credential:${credentials}">
                                     <td>
-                                        <button type="button" class="btn btn-success">Edit</button>
-                                        <a class="btn btn-danger">Delete</a>
+                                        <button type="button" class="btn btn-success" th:id="${'edit-credential-button' + credential.credentialId}"
+                                                th:attr='onclick=|showCredentialModal("${credential.credentialId}","${credential.url}", "${credential.username}", "${encryptionService.decryptValue(credential.password, credential.key)}")|'
+                                        >Edit</button>
+                                        <a class="btn btn-danger" th:id="${'delete-credential-link' + credential.credentialId}" th:href="@{/credentials/{credentialId}(credentialId=${credential.credentialId})}">Delete</a>
                                     </td>
-                                    <th scope="row">Example Credential URL</th>
-                                    <td>Example Credential Username</td>
-                                    <td>Example Credential Password</td>
+                                    <th scope="row" th:id="${'credential-url' + credential.credentialId}" name="credential-url" th:text="${credential.url}">Example Credential URL</th>
+                                    <td th:id="${'credential-username' + credential.credentialId}" name="credential-username" th:text="${credential.username}">Example Credential Username</td>
+                                    <input type="hidden" th:id="${'credential-key' + credential.credentialId}" name="credential-key" th:value="${credential.key}">
+                                    <td th:id="${'credential-password' + credential.credentialId}" name="credential-password" th:text="${credential.password}">Example Credential Password</td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -152,35 +179,58 @@
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="credentialModalLabel">Credential</h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <button type="button" class="close" id="credential-modal-close-button" data-dismiss="modal" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
                                         </button>
                                     </div>
                                     <div class="modal-body">
-                                        <form action="#" method="POST">
-                                            <input type="hidden" name="credentialId" id="credential-id">
+                                        <form action="#" method="POST" th:object="${credential}" th:action="@{/credentials}">
+                                            <input type="hidden" name="credentialId" id="credential-id" th:field="*{credentialId}">
                                             <div class="form-group">
-                                                <label for="note-title" class="col-form-label">URL</label>
-                                                <input type="text" name= "url" class="form-control" id="credential-url" maxlength="100" required>
+                                                <label for="credential-url" class="col-form-label">URL</label>
+                                                <input type="text" name= "url" class="form-control" id="credential-url" th:field="*{url}" maxlength="100" required>
                                             </div>
                                             <div class="form-group">
-                                                <label for="note-title" class="col-form-label">Username</label>
-                                                <input type="text" name= "username" class="form-control" id="credential-username" maxlength="30" required>
+                                                <label for="credential-username" class="col-form-label">Username</label>
+                                                <input type="text" name= "username" class="form-control" id="credential-username" th:field="*{username}" maxlength="30" required>
                                             </div>
                                             <div class="form-group">
-                                                <label for="note-title" class="col-form-label">Password</label>
-                                                <input type="text" name= "password" class="form-control" id="credential-password" maxlength="30" required>
+                                                <label for="credential-password" class="col-form-label">Password</label>
+                                                <input type="text" name= "password" class="form-control" id="modal-credential-password" th:field="*{password}" maxlength="30" required>
                                             </div>
-                                            <button id="credentialSubmit" type="submit" class="d-none"></button>
+                                            <button id="credential-submit-button" type="submit" class="d-none"></button>
                                         </form>
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                        <button type="button" class="btn btn-primary" onclick="$('#credentialSubmit').click();">Save changes</button>
+                                        <button type="button" class="btn btn-secondary" id="credential-modal-cancel-button" data-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-primary" id="credential-modal-confirm-button" onclick="$('#credential-submit-button').click();">Save changes</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
+<!--                        <div class="modal fade" id="deleteCredentialModal" tabindex="-1" role="dialog" aria-labelledby="deleteCredentialModalLabel" aria-hidden="true">-->
+<!--                            <div class="modal-dialog" role="document">-->
+<!--                                <div class="modal-content">-->
+<!--                                    <div class="modal-header">-->
+<!--                                        <h5 class="modal-title" id="deleteCredentialModalLabel">Credential</h5>-->
+<!--                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">-->
+<!--                                            <span aria-hidden="true">&times;</span>-->
+<!--                                        </button>-->
+<!--                                    </div>-->
+<!--                                    <div class="modal-body">-->
+<!--                                        <form action="#" method="POST" th:action="@{/credential/delete}">-->
+<!--                                            <input type="hidden" name="deleteCredentialId" id="deleteCredential-id">-->
+<!--                                            <h4 id="deleteCredentialUrl" name="deleteCredentialUrl"></h4>-->
+<!--                                            <button id="deleteCredentialSubmit" type="submit" class="d-none"></button>-->
+<!--                                        </form>-->
+<!--                                    </div>-->
+<!--                                    <div class="modal-footer">-->
+<!--                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>-->
+<!--                                        <button type="button" class="btn btn-primary" onclick="$('#deleteCredentialSubmit').click();">Delete</button>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
                     </div>
                 </div>
             </div>
@@ -192,22 +242,25 @@
 
         <!--For opening the note modal-->
         <script type="text/javascript">
-            // For opening the note modal
+
+            // For opening and editing the note modal
             function showNoteModal(noteId, noteTitle, noteDescription) {
-                $('#note-id').val(noteId ? noteId : '');
+                $('#note-id').val(noteId ? noteId : -1);
                 $('#note-title').val(noteTitle ? noteTitle : '');
                 $('#note-description').val(noteDescription ? noteDescription : '');
                 $('#noteModal').modal('show');
             }
 
-            // For opening the credentials modal
+            // For opening the credentials modal and create/edit credential
             function showCredentialModal(credentialId, url, username, password) {
-                $('#credential-id').val(credentialId ? credentialId : '');
+                $('#credential-id').val(credentialId ? credentialId : -1);
                 $('#credential-url').val(url ? url : '');
                 $('#credential-username').val(username ? username : '');
-                $('#credential-password').val(password ? password : '');
+                $('#modal-credential-password').val(password ? password : '');
                 $('#credentialModal').modal('show');
             }
+
+
         </script>
     </body>
 </html>

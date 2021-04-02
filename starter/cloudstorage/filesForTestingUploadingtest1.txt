@@ -1,0 +1,78 @@
+package com.udacity.jwdnd.l4.final_review;
+
+import com.udacity.jwdnd.l4.final_review.model.Message;
+import com.udacity.jwdnd.l4.final_review.page.ChatPage;
+import com.udacity.jwdnd.l4.final_review.page.LoginPage;
+import com.udacity.jwdnd.l4.final_review.page.SignupPage;
+import io.github.bonigarcia.wdm.WebDriverManager;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.server.LocalServerPort;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@SpringBootTest (webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+class FinalReviewApplicationTests {
+
+	@LocalServerPort
+	private int port;
+
+	public static WebDriver driver;
+	public String baseURL;
+
+	@BeforeAll
+	public static void beforeAll() {
+		WebDriverManager.chromedriver().setup();
+		driver = new ChromeDriver();
+		
+	}
+
+	@AfterAll
+	public static void afterAll() {
+		driver.quit();
+		driver = null;
+	}
+
+	@BeforeEach
+	public void beforeEach() {
+		baseURL = "http://localhost:" + port;
+	}
+
+	@Test
+	public void testSignupLoginAndFirstMessage() {
+		String username = "user1";
+		String password = "user1";
+		String firstName = "User1";
+		String lastName = "User1";
+		String firstMessage = "Hello, this is my first message";
+
+
+		driver.get(baseURL + "/signup");
+		SignupPage signupPage = new SignupPage(driver);
+
+		signupPage.signup(username,password,firstName,lastName);
+		driver.get(baseURL + "/login");
+		LoginPage loginPage = new LoginPage(driver);
+		loginPage.login(username,password);
+
+		driver.get(baseURL + "/chat");
+		ChatPage chatPage = new ChatPage(driver);
+
+		chatPage.sendMessageText(firstMessage);
+
+		Message sentMessage = chatPage.getFirstMessageText();
+		assertEquals(username, sentMessage.getUsername());
+		assertEquals(firstMessage, sentMessage.getMessageText());
+
+
+	}
+
+
+
+
+}

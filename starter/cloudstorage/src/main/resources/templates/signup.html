@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
+        <meta name="loading-marker" id="page-loading-marker">
         <link rel="stylesheet" type="text/css" media="all" th:href="@{/css/bootstrap.min.css}">
 
         <title>Sign Up</title>
@@ -11,16 +11,16 @@
     <body class="p-3 mb-2 bg-light text-black">
         <div class="container justify-content-center w-50 p-3" style="background-color: #eeeeee; margin-top: 5em;">
             <div class="form-group">
-                <label><a>Back to Login</a></label>
+                <label><a id="signup-back-to-login" th:href="@{/login}">Back to Login</a></label>
             </div>
 
             <h1 class="display-5">Sign Up</h1>
-            <form action="#" method="POST">
-                <div class="alert alert-dark">
-                    You successfully signed up! Please continue to the <a>login</a> page.
+            <form action="#" method="POST" th:action="@{/signup}">
+                <div class="alert alert-dark" id="success" th:if="${success}">
+                    You successfully signed up! Please continue to the <a id="signup-login" th:href="@{/login}">Login</a> page.
                 </div>
-                <div class="alert alert-danger">
-                    <span>Example Signup Error Message</span>
+                <div class="alert alert-danger" id="error" th:if="${signupError!=null}">
+                    <span th:text="${signupError}">User already exists!</span>
                 </div>
                 <div class="form-row">
                     <div class="form-group col-md-6">
@@ -42,7 +42,7 @@
                         <input type="password" name="password" class="form-control" id="inputPassword" placeholder="Enter Password" maxlength="20" required>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary">Sign Up</button>
+                <button type="submit" class="btn btn-primary" id="signup-submit-button">Sign Up</button>
             </form>
         </div>
     </body>

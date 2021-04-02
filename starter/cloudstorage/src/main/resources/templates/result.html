@@ -3,25 +3,20 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
+        <meta name="loading-marker" id="page-loading-marker">
         <link rel="stylesheet" type="text/css" media="all" th:href="@{/css/bootstrap.min.css}">
 
         <title>Result</title>
     </head>
     <body class="p-3 mb-2 bg-light text-black">
         <div class="container justify-content-center w-50 p-3" style="margin-top: 5em;">
-            <div class="alert alert-success fill-parent">
-                <h1 class="display-5">Success</h1>
-                <span>Your changes were successfully saved. Click <a>here</a> to continue.</span>
+            <div class="alert alert-success fill-parent" id="success-div" name="success-div" th:if="${success}">
+                <h1 class="display-5" th:text="${message}">Success</h1>
+                <span>Your changes were successfully saved. Click <a id="success-here" name="success-here" th:href="@{/home(noteActive=${noteActive}, credentialActive=${credentialActive})}">here</a> to continue.</span>
             </div>
-            <div class="alert alert-danger fill-parent">
-                <h1 class="display-5">Error</h1>
-                <span>Your changes were not saved. Click <a>here</a> to continue.</span>
-            </div>
-            <div class="alert alert-danger fill-parent">
-                <h1 class="display-5">Error</h1>
-                <span>Example Error Message</span>
-                <span>Click <a>here</a> to continue.</span>
+            <div class="alert alert-danger fill-parent" id="error-div" name="success-div" th:if="${error!=null}">
+                <h1 class="display-5" th:text="${error}">Error</h1>
+                <span>Your changes were not saved.Click <a id="error-here" name="error-here" th:href="@{/home(noteActive=${noteActive}, credentialActive=${credentialActive})}">here</a> to continue.</span>
             </div>
         </div>
     </body>
