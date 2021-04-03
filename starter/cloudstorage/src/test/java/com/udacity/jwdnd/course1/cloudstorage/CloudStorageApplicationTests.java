@@ -51,11 +51,10 @@ class CloudStorageApplicationTests {
 		//From forum
 		
 		ChromeOptions options = new ChromeOptions();
-		Map<String, Object> prefs = new HashMap<>();
+		final Map<String, Object> prefs = new HashMap<>();
 		prefs.put("download.prompt_for_download", false);
-		String downloadDirectory = null;
 
-		downloadDirectory = System.getProperty("user.dir");
+		String downloadDirectory = System.getProperty("user.dir");
 		prefs.put("download.default_directory", downloadDirectory);
 		options.setExperimentalOption("prefs", prefs);
 		driver = new ChromeDriver(options);
@@ -172,7 +171,7 @@ class CloudStorageApplicationTests {
 	}
 
 
-
+	@Disabled
 	@Test
 	@Order(9)
 	public void testUploadViewDeleteFile() throws InterruptedException, IOException {

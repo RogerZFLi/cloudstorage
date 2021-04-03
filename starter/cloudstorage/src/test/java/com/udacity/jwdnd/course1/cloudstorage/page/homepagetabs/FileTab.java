@@ -51,10 +51,11 @@ public class FileTab {
 
     public int uploadEmptyFileFail(int numberOfFileToUpload) throws IOException {
 
-        File folder = new File(System.getProperty("user.dir")+"\\filesForTestingUploading");
-        if(!folder.exists())
+        final File folder = new File(System.getProperty("user.dir")+"\\filesForTestingUploading");
+        if(!folder.exists()) {
             folder.mkdir();
-        File file = new File(folder.getAbsolutePath() + "\\test.txt");
+        }
+        final File file = new File(folder.getAbsolutePath() + "\\test.txt");
         file.createNewFile();
         String filePath = file.getAbsolutePath();
         fileUpload.sendKeys(filePath);
@@ -69,6 +70,7 @@ public class FileTab {
 
         // List the files on that folder
         File[] listOfFiles = folder.listFiles();
+        assert listOfFiles != null;
         Optional<File> result =
                 Arrays.stream(listOfFiles)
                         .filter(f -> f.getName().equalsIgnoreCase("test.txt"))
@@ -81,92 +83,15 @@ public class FileTab {
     }
 
     public int uploadFile(int numberOfFileToUpload) throws IOException {
-        File folder = new File(System.getProperty("user.dir")+"\\filesForTestingUploading");
+        final File folder = new File(System.getProperty("user.dir")+"\\filesForTestingUploading");
         if(!folder.exists())
             folder.mkdir();
         for (int i = 1; i <= numberOfFileToUpload; i++) {
-            File file = new File(folder.getAbsolutePath() + "\\test" + i + ".txt");
+            final File file = new File(folder.getAbsolutePath() + "\\test" + i + ".txt");
             file.createNewFile();
             file.setWritable(true);
             FileWriter writer = new FileWriter(file);
-            writer.write("package com.udacity.jwdnd.l4.final_review;\n" +
-                    "\n" +
-                    "import com.udacity.jwdnd.l4.final_review.model.Message;\n" +
-                    "import com.udacity.jwdnd.l4.final_review.page.ChatPage;\n" +
-                    "import com.udacity.jwdnd.l4.final_review.page.LoginPage;\n" +
-                    "import com.udacity.jwdnd.l4.final_review.page.SignupPage;\n" +
-                    "import io.github.bonigarcia.wdm.WebDriverManager;\n" +
-                    "import org.junit.jupiter.api.AfterAll;\n" +
-                    "import org.junit.jupiter.api.BeforeAll;\n" +
-                    "import org.junit.jupiter.api.BeforeEach;\n" +
-                    "import org.junit.jupiter.api.Test;\n" +
-                    "import org.openqa.selenium.WebDriver;\n" +
-                    "import org.openqa.selenium.chrome.ChromeDriver;\n" +
-                    "import org.springframework.boot.test.context.SpringBootTest;\n" +
-                    "import org.springframework.boot.web.server.LocalServerPort;\n" +
-                    "\n" +
-                    "import static org.junit.jupiter.api.Assertions.assertEquals;\n" +
-                    "\n" +
-                    "@SpringBootTest (webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)\n" +
-                    "class FinalReviewApplicationTests {\n" +
-                    "\n" +
-                    "\t@LocalServerPort\n" +
-                    "\tprivate int port;\n" +
-                    "\n" +
-                    "\tpublic static WebDriver driver;\n" +
-                    "\tpublic String baseURL;\n" +
-                    "\n" +
-                    "\t@BeforeAll\n" +
-                    "\tpublic static void beforeAll() {\n" +
-                    "\t\tWebDriverManager.chromedriver().setup();\n" +
-                    "\t\tdriver = new ChromeDriver();\n" +
-                    "\t\t\n" +
-                    "\t}\n" +
-                    "\n" +
-                    "\t@AfterAll\n" +
-                    "\tpublic static void afterAll() {\n" +
-                    "\t\tdriver.quit();\n" +
-                    "\t\tdriver = null;\n" +
-                    "\t}\n" +
-                    "\n" +
-                    "\t@BeforeEach\n" +
-                    "\tpublic void beforeEach() {\n" +
-                    "\t\tbaseURL = \"http://localhost:\" + port;\n" +
-                    "\t}\n" +
-                    "\n" +
-                    "\t@Test\n" +
-                    "\tpublic void testSignupLoginAndFirstMessage() {\n" +
-                    "\t\tString username = \"user1\";\n" +
-                    "\t\tString password = \"user1\";\n" +
-                    "\t\tString firstName = \"User1\";\n" +
-                    "\t\tString lastName = \"User1\";\n" +
-                    "\t\tString firstMessage = \"Hello, this is my first message\";\n" +
-                    "\n" +
-                    "\n" +
-                    "\t\tdriver.get(baseURL + \"/signup\");\n" +
-                    "\t\tSignupPage signupPage = new SignupPage(driver);\n" +
-                    "\n" +
-                    "\t\tsignupPage.signup(username,password,firstName,lastName);\n" +
-                    "\t\tdriver.get(baseURL + \"/login\");\n" +
-                    "\t\tLoginPage loginPage = new LoginPage(driver);\n" +
-                    "\t\tloginPage.login(username,password);\n" +
-                    "\n" +
-                    "\t\tdriver.get(baseURL + \"/chat\");\n" +
-                    "\t\tChatPage chatPage = new ChatPage(driver);\n" +
-                    "\n" +
-                    "\t\tchatPage.sendMessageText(firstMessage);\n" +
-                    "\n" +
-                    "\t\tMessage sentMessage = chatPage.getFirstMessageText();\n" +
-                    "\t\tassertEquals(username, sentMessage.getUsername());\n" +
-                    "\t\tassertEquals(firstMessage, sentMessage.getMessageText());\n" +
-                    "\n" +
-                    "\n" +
-                    "\t}\n" +
-                    "\n" +
-                    "\n" +
-                    "\n" +
-                    "\n" +
-                    "}\n");
+            writer.write(new StringBuilder().append("package com.udacity.jwdnd.l4.final_review;\n").append("\n").append("import com.udacity.jwdnd.l4.final_review.model.Message;\n").append("import com.udacity.jwdnd.l4.final_review.page.ChatPage;\n").append("import com.udacity.jwdnd.l4.final_review.page.LoginPage;\n").append("import com.udacity.jwdnd.l4.final_review.page.SignupPage;\n").append("import io.github.bonigarcia.wdm.WebDriverManager;\n").append("import org.junit.jupiter.api.AfterAll;\n").append("import org.junit.jupiter.api.BeforeAll;\n").append("import org.junit.jupiter.api.BeforeEach;\n").append("import org.junit.jupiter.api.Test;\n").append("import org.openqa.selenium.WebDriver;\n").append("import org.openqa.selenium.chrome.ChromeDriver;\n").append("import org.springframework.boot.test.context.SpringBootTest;\n").append("import org.springframework.boot.web.server.LocalServerPort;\n").append("\n").append("import static org.junit.jupiter.api.Assertions.assertEquals;\n").append("\n").append("@SpringBootTest (webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)\n").append("class FinalReviewApplicationTests {\n").append("\n").append("\t@LocalServerPort\n").append("\tprivate int port;\n").append("\n").append("\tpublic static WebDriver driver;\n").append("\tpublic String baseURL;\n").append("\n").append("\t@BeforeAll\n").append("\tpublic static void beforeAll() {\n").append("\t\tWebDriverManager.chromedriver().setup();\n").append("\t\tdriver = new ChromeDriver();\n").append("\t\t\n").append("\t}\n").append("\n").append("\t@AfterAll\n").append("\tpublic static void afterAll() {\n").append("\t\tdriver.quit();\n").append("\t\tdriver = null;\n").append("\t}\n").append("\n").append("\t@BeforeEach\n").append("\tpublic void beforeEach() {\n").append("\t\tbaseURL = \"http://localhost:\" + port;\n").append("\t}\n").append("\n").append("\t@Test\n").append("\tpublic void testSignupLoginAndFirstMessage() {\n").append("\t\tString username = \"user1\";\n").append("\t\tString password = \"user1\";\n").append("\t\tString firstName = \"User1\";\n").append("\t\tString lastName = \"User1\";\n").append("\t\tString firstMessage = \"Hello, this is my first message\";\n").append("\n").append("\n").append("\t\tdriver.get(baseURL + \"/signup\");\n").append("\t\tSignupPage signupPage = new SignupPage(driver);\n").append("\n").append("\t\tsignupPage.signup(username,password,firstName,lastName);\n").append("\t\tdriver.get(baseURL + \"/login\");\n").append("\t\tLoginPage loginPage = new LoginPage(driver);\n").append("\t\tloginPage.login(username,password);\n").append("\n").append("\t\tdriver.get(baseURL + \"/chat\");\n").append("\t\tChatPage chatPage = new ChatPage(driver);\n").append("\n").append("\t\tchatPage.sendMessageText(firstMessage);\n").append("\n").append("\t\tMessage sentMessage = chatPage.getFirstMessageText();\n").append("\t\tassertEquals(username, sentMessage.getUsername());\n").append("\t\tassertEquals(firstMessage, sentMessage.getMessageText());\n").append("\n").append("\n").append("\t}\n").append("\n").append("\n").append("\n").append("\n").append("}\n").toString());
             writer.close();
             String filePath = file.getAbsolutePath();
             fileUpload = driver.findElement(By.id("fileUpload"));
@@ -180,6 +105,7 @@ public class FileTab {
 
             File[] listOfFiles = folder.listFiles();
             int finalI = i;
+            assert listOfFiles != null;
             Optional<File> result =
                     Arrays.stream(listOfFiles)
                             .filter(f -> f.getName().equalsIgnoreCase("test" + finalI + ".txt"))
@@ -197,17 +123,17 @@ public class FileTab {
         wait.until(ExpectedConditions.elementToBeClickable(buttonUploadFile));
     }
 
-    public void deleteFile(int numberOfFileToDelete) throws InterruptedException {
+    public void deleteFile(int numberOfFileToDelete) {
         WebElement linkDelete;
         for (int i=1; i<=5; i++) {
             linkDelete = driver.findElement(By.id("home-file-delete-link" + i));
             ((JavascriptExecutor) driver).executeScript("arguments[0].click();", linkDelete);
             //this "wait" triggers an timeout exception
-//            wait.until(ExpectedConditions.elementToBeClickable(linkSuccessHere));
-//
-//            Assertions.assertEquals("Result", driver.getTitle());
-//            Assertions.assertNotNull(driver.findElement(By.id("success-div")));
-//            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", linkSuccessHere);
+            wait.until(ExpectedConditions.elementToBeClickable(linkSuccessHere));
+
+            Assertions.assertEquals("Result", driver.getTitle());
+            Assertions.assertNotNull(driver.findElement(By.id("success-div")));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", linkSuccessHere);
             wait.until(ExpectedConditions.elementToBeClickable(buttonUploadFile));
         }
     }

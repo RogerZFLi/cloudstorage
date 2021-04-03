@@ -93,6 +93,7 @@ public class FilesController {
             model.addAttribute("error", e.getMessage());
         }
 
+        assert file != null;
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(file.getContentType())).header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""
                         + file.getFileName() + "\"").body(new
@@ -110,13 +111,13 @@ public class FilesController {
                 model.addAttribute("success", true);
             }catch (Exception e){
                 model.addAttribute("error", e.getMessage());
-                model.addAttribute("noteActive", false);
-                model.addAttribute("credentialActive", false);
-                return "result";
             }
         //Redirects to home page if action succeeds and error free
         //Passes 2 boolean variables to decide which tab to activate and show
         //Activates and shows Files tab after redirecting to home page if {noteActive} and {credentialActive} are both false;
-        return "redirect:/home?noteActive=false&credentialActive=false";
+//        return "redirect:/home?noteActive=false&credentialActive=false";
+        model.addAttribute("noteActive", false);
+        model.addAttribute("credentialActive", false);
+        return "result";
     }
 }
